@@ -1,0 +1,29 @@
+{
+  "name": "bundle-ensure-webpack-plugin",
+  "version": "0.0.1",
+  "description": "ensure bundle loaded and make retry-able before startup",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mc-zone/bundle-ensure-webpack-plugin.git"
+  },
+  "keywords": [
+    "webpack",
+    "plugin",
+    "bundle",
+    "retry",
+    "reload",
+    "ensure"
+  ],
+  "author": "mc-zone",
+  "license": "MIT",
+  "dependencies": {
+    "webpack-sources": "^1.0.1"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4"
+  }
+}
