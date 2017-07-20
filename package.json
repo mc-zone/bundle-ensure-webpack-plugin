@@ -21,6 +21,7 @@
   "author": "mc-zone",
   "license": "MIT",
   "dependencies": {
+    "tapable": "^0.2.7",
     "webpack-sources": "^1.0.1"
   },
   "devDependencies": {

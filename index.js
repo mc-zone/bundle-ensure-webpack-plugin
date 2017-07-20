@@ -1,18 +1,33 @@
 var fs = require("fs");
 var path = require("path");
+var Tapable = require("tapable");
 var util = require("./lib/util/compilation");
 var createStartup = require("./lib/createStartup");
 var wrapChunkSource = require("./lib/wrapChunkSource");
 
-class BundleEnsureWebpackPlugin {
+class BundleEnsureWebpackPlugin extends Tapable {
   constructor(options={}){
-    this.options = options;
+    super();
+    this.options = Object.assign({
+      globalName: "window.__WPE__",
+      associateWithHtmlPlugin: true,
+      retryTemplate: undefined,
+    }, options);
 
-    this.globalName = options.globalName || "window.__WPE__";
-    this.retryTemplate = options.retryTemplate || fs.readFileSync(path.resolve(__dirname, "./template/retry.js"), "utf8");
+    if(!this.options.retryTemplate){
+      this.options.retryTemplate = fs.readFileSync(path.resolve(__dirname, "./template/retry.js"), "utf8");
+    }
 
     this.entryChunks = new Map();
     this.prepareChunks = new Map();
+
+
+    this.plugin("bundle-ensure-webpack-plugin-manifest", (compilation) => {
+      return this.getManifest(compilation);
+    });
+    this.plugin("bundle-ensure-webpack-plugin-render", (manifest, compilation) => {
+      return this.makeStartupScript(compilation, manifest);
+    });
   }
 
   registerChunk(chunk){
@@ -80,28 +95,59 @@ class BundleEnsureWebpackPlugin {
     return manifest;
   }
 
-  apply(compiler){
-    compiler.plugin("compilation", (compilation) => {
-      if(compilation.compiler === compiler){
-        compilation.mainTemplate.plugin("render", (source, chunk, hash) => {
-          this.registerChunk(chunk);
-          return wrapChunkSource(chunk, source, this.globalName);
-        });
+  makeStartupScript(compilation, manifest){
+    var options = this.options;
+    var prepareChunksId = Array.from(this.prepareChunks.keys());
+    var entryChunksId = Array.from(this.entryChunks.keys());
+    var retryTemplate = options.retryTemplate;
 
-        compilation.chunkTemplate.plugin("render", (source, chunk, hash) => {
-          this.registerChunk(chunk);
-          return wrapChunkSource(chunk, source, this.globalName);
-        });
+    return createStartup(manifest, options.globalName, prepareChunksId, entryChunksId, retryTemplate);
+  }
+
+  apply(compiler){
+    var options = this.options;
+
+    compiler.plugin("compilation", (compilation) => {
+      if(compilation.compiler !== compiler){//ignore child compiler
+        return ;
       }
+
+      compilation.mainTemplate.plugin("render", (source, chunk, hash) => {
+        this.registerChunk(chunk);
+        return wrapChunkSource(chunk, source, options.globalName);
+      });
+
+      compilation.chunkTemplate.plugin("render", (source, chunk, hash) => {
+        this.registerChunk(chunk);
+        return wrapChunkSource(chunk, source, options.globalName);
+      });
     });
 
-    compiler.plugin("emit", (compilation, callback) => {
-      var manifest = this.getManifest(compilation);
-      var prepareChunksId = Array.from(this.prepareChunks.keys());
-      var entryChunksId = Array.from(this.entryChunks.keys());
-      var retryTemplate = this.retryTemplate;
+    compiler.plugin("after-compile", (compilation, callback) => {
+      if(compilation.compiler !== compiler){//ignore child compiler
+        return callback();
+      }
 
-      var startup = createStartup(manifest, this.globalName, prepareChunksId, entryChunksId, retryTemplate);
+      compilation.applyPlugins("bundle-ensure-webpack-plugin-created", this);
+      var manifest = this.applyPluginsWaterfall("bundle-ensure-webpack-plugin-manifest", compilation);
+      var startupScript = this.applyPluginsWaterfall("bundle-ensure-webpack-plugin-render", manifest, compilation);
+
+      if(options.associateWithHtmlPlugin){
+        compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
+          htmlPluginData.body.push({
+            tagName: "script",
+            closeTag: true,
+            innerHTML: startupScript,
+          })
+          callback(null, htmlPluginData);
+        });
+      }
+      callback();
+    });
+      
+
+    /*
+    compiler.plugin("emit", (compilation, callback) => {
 
       compilation.assets["startup.js"] = {
         source:() => startup,
@@ -109,6 +155,7 @@ class BundleEnsureWebpackPlugin {
       };
       callback();
     });
+    */
   }
 
 }
