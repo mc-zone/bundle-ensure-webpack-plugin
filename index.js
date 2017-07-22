@@ -225,7 +225,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
           callback(null, htmlPluginData);
         });
         compilation.plugin('html-webpack-plugin-after-html-processing', (htmlPluginData, callback) => {
-          htmlPluginData.html = htmlPluginData.html.replace(/<\/body>/, `<script>${startupScript}</script></body>`);
+          htmlPluginData.html = htmlPluginData.html.replace(/(<\/body\s*>)/, `<script>${startupScript}</script>$1`);
           callback(null, htmlPluginData);
         });
       }
