@@ -4,7 +4,8 @@
   "description": "ensure bundle loaded and make retry-able before startup",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "build-test": "node --inspect ./tests/build.js",
+    "test": "node ./tests/build.js & jest"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,15 @@
     "tapable": "^0.2.7",
     "webpack-sources": "^1.0.1"
   },
+  "peerDependencies": {
+    "webpack": "^3.3.0"
+  },
   "devDependencies": {
-    "jest": "^20.0.4"
+    "html-webpack-plugin": "^2.29.0",
+    "jest": "^20.0.4",
+    "webpack": "^3.3.0"
+  },
+  "jest":{
+    "verbose":true
   }
 }

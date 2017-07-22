@@ -11,10 +11,12 @@ class BundleEnsureWebpackPlugin extends Tapable {
     this.options = Object.assign({
       globalName: "window.__WPE__",
       associateWithHtmlPlugin: true,
+      emitStartup: false,
+      startupFilename:"[name].startup.js",
       retryTemplate: undefined,
     }, options);
 
-    if(!this.options.retryTemplate){
+    if(typeof this.options.retryTemplate === "undefined"){
       this.options.retryTemplate = fs.readFileSync(path.resolve(__dirname, "./template/retry.js"), "utf8");
     }
 
@@ -22,11 +24,11 @@ class BundleEnsureWebpackPlugin extends Tapable {
     this.prepareChunks = new Map();
 
 
-    this.plugin("bundle-ensure-webpack-plugin-manifest", (compilation) => {
-      return this.getManifest(compilation);
+    this.plugin("count-entry-manifest", (init, entrypoint, compilation) => {
+      return this.getManifestForEntry(entrypoint, compilation);
     });
-    this.plugin("bundle-ensure-webpack-plugin-render", (manifest, compilation) => {
-      return this.makeStartupScript(compilation, manifest);
+    this.plugin("render-entry-startup", (init, manifest, entrypoint, compilation) => {
+      return this.renderStartupScript(compilation, manifest);
     });
   }
 
@@ -38,7 +40,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
     }
   }
 
-  getManifest(compilation){
+  getManifestForEntry(entrypoint, compilation){
     var options = this.options;
     var publicPath = util.getPublicPath(compilation);
     var manifest = [];
@@ -53,7 +55,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
       defaultDllPublicPath += '/';
     }
 
-    //collect dlls
+    //collect all dlls
     var dllSet = util.getUsedDll(compilation);
     dllSet.forEach(name => {
       var dllUrl;
@@ -71,7 +73,9 @@ class BundleEnsureWebpackPlugin extends Tapable {
     });
 
     //collect chunks
+    var needChunksId = new Set(entrypoint.chunks.map(chunk => chunk.id));
     this.prepareChunks.forEach((chunk, id) => {
+      if(!needChunksId.has(id)) return ;
       var chunkUrl = publicPath + chunk.files[0]; 
       manifest.push({
         isChunk:true,
@@ -82,6 +86,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
       });
     });
     this.entryChunks.forEach((chunk, id) => {
+      if(!needChunksId.has(id)) return ;
       var chunkUrl = publicPath + chunk.files[0]; 
       manifest.push({
         isChunk:true,
@@ -95,13 +100,32 @@ class BundleEnsureWebpackPlugin extends Tapable {
     return manifest;
   }
 
-  makeStartupScript(compilation, manifest){
+  renderStartupScript(compilation, manifest){
     var options = this.options;
-    var prepareChunksId = Array.from(this.prepareChunks.keys());
-    var entryChunksId = Array.from(this.entryChunks.keys());
     var retryTemplate = options.retryTemplate;
+    var jsonpFunction = this.getJsonpFunctionName(compilation);
 
-    return createStartup(manifest, options.globalName, prepareChunksId, entryChunksId, retryTemplate);
+    return createStartup(manifest, options.globalName, jsonpFunction, retryTemplate);
+  }
+
+  emitStartupScript(compilation, scripts){
+    scripts.forEach((script, entryName) => {
+      var outputFilename = this.getScriptOutputFilename(entryName);
+      compilation.assets[outputFilename] = {
+        source: () => script,
+        size: () => Buffer.byteLength(script),
+      };
+    });
+  }
+
+  getScriptOutputFilename(entryName){
+    var filename = this.options.startupFilename;
+    filename = filename.replace("[name]", entryName);
+    return filename;
+  }
+
+  getJsonpFunctionName(compilation){
+    return compilation.outputOptions.jsonpFunction;
   }
 
   apply(compiler){
@@ -112,14 +136,15 @@ class BundleEnsureWebpackPlugin extends Tapable {
         return ;
       }
 
+      var jsonpFunction = this.getJsonpFunctionName(compilation);
       compilation.mainTemplate.plugin("render", (source, chunk, hash) => {
         this.registerChunk(chunk);
-        return wrapChunkSource(chunk, source, options.globalName);
+        return wrapChunkSource(chunk, source, options.globalName, jsonpFunction);
       });
 
       compilation.chunkTemplate.plugin("render", (source, chunk, hash) => {
         this.registerChunk(chunk);
-        return wrapChunkSource(chunk, source, options.globalName);
+        return wrapChunkSource(chunk, source, options.globalName, jsonpFunction);
       });
     });
 
@@ -129,10 +154,23 @@ class BundleEnsureWebpackPlugin extends Tapable {
       }
 
       compilation.applyPlugins("bundle-ensure-webpack-plugin-created", this);
-      var manifest = this.applyPluginsWaterfall("bundle-ensure-webpack-plugin-manifest", compilation);
-      var startupScript = this.applyPluginsWaterfall("bundle-ensure-webpack-plugin-render", manifest, compilation);
+
+      var entryManifests = new Map();
+      for(var entryName in compilation.entrypoints){
+        var entrypoint = compilation.entrypoints[entryName];
+        var manifest = this.applyPluginsWaterfall("count-entry-manifest", true, entrypoint, compilation);
+        entryManifests.set(entryName, manifest);
+      }
+
+      var entryScripts = new Map();
+      entryManifests.forEach((manifest, entryName) => {
+        var entrypoint = compilation.entrypoints[entryName];
+        var startupScript = this.applyPluginsWaterfall("render-entry-startup", true, manifest, entrypoint, compilation);
+        entryScripts.set(entryName, startupScript);
+      });
 
       if(options.associateWithHtmlPlugin){
+        //TODO filter by include entry chunks
         compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
           htmlPluginData.body.push({
             tagName: "script",
@@ -142,22 +180,16 @@ class BundleEnsureWebpackPlugin extends Tapable {
           callback(null, htmlPluginData);
         });
       }
+
+      if(options.emitStartup){
+        compiler.plugin("emit", (compilation, callback) => {
+          this.emitStartupScript(compilation, entryScripts);
+          callback();
+        });
+      }
       callback();
     });
-      
-
-    /*
-    compiler.plugin("emit", (compilation, callback) => {
-
-      compilation.assets["startup.js"] = {
-        source:() => startup,
-        size:() => startup.length,
-      };
-      callback();
-    });
-    */
   }
-
 }
 
 

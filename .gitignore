@@ -61,3 +61,5 @@ typings/
 *.swo
 ~*
 .DS_Store
+
+tests/**/dist
