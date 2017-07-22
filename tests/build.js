@@ -20,8 +20,9 @@ fs.readdir(__dirname, function(err, list){
       }
       console.log(stats.toString({
         chunks: false,
+        modules: false,
         colors:true
-      }));
+      }) + "\n");
     }); 
   })
 })

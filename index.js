@@ -27,7 +27,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
     this.plugin("count-entry-manifest", (init, entrypoint, compilation) => {
       return this.getManifestForEntry(entrypoint, compilation);
     });
-    this.plugin("render-entry-startup", (init, manifest, entrypoint, compilation) => {
+    this.plugin("render-startup", (init, manifest, entrypoints, compilation) => {
       return this.renderStartupScript(compilation, manifest);
     });
   }
@@ -38,6 +38,24 @@ class BundleEnsureWebpackPlugin extends Tapable {
     }else{
       this.prepareChunks.set(chunk.id, chunk);
     }
+  }
+
+  findEntrypointsInHtml(chunks, compilation){
+    var includeEntryChunksId = new Set();
+    chunks.forEach(chunk => {
+      if(this.entryChunks.has(chunk.id)){
+        includeEntryChunksId.add(chunk.id);
+      }
+    });
+    var entrypoints = new Map();
+    for(var entryName in compilation.entrypoints){
+      var entrypoint = compilation.entrypoints[entryName];
+      var entrypointChunksId = entrypoint.chunks.map(chunk => chunk.id);
+      if(entrypointChunksId.find(id => includeEntryChunksId.has(id)) !== undefined){
+        entrypoints.set(entryName, entrypoint);
+      }
+    }
+    return entrypoints;
   }
 
   getManifestForEntry(entrypoint, compilation){
@@ -81,6 +99,7 @@ class BundleEnsureWebpackPlugin extends Tapable {
         isChunk:true,
         id:id,
         name:chunk.name,
+        flename:chunk.files[0],
         url:chunkUrl,
         priority:5,
       });
@@ -92,12 +111,28 @@ class BundleEnsureWebpackPlugin extends Tapable {
         isChunk:true,
         id:id,
         name:chunk.name,
+        flename:chunk.files[0],
         url:chunkUrl,
         priority:10,
       });
     });
 
     return manifest;
+  }
+
+  mergeManifest(manifestList){
+    var mergeMap = new Map(); 
+    manifestList.forEach(manifest => {
+      manifest.forEach(chunk => {
+        if(chunk.isChunk){
+          mergeMap.set(chunk.id, chunk);
+        }else{
+          mergeMap.set(`external ${chunk.name}`, chunk);
+        }
+      });
+    });
+
+    return Array.from(mergeMap.values()).sort((a, b) => a.priority - b.priority);
   }
 
   renderStartupScript(compilation, manifest){
@@ -108,14 +143,12 @@ class BundleEnsureWebpackPlugin extends Tapable {
     return createStartup(manifest, options.globalName, jsonpFunction, retryTemplate);
   }
 
-  emitStartupScript(compilation, scripts){
-    scripts.forEach((script, entryName) => {
-      var outputFilename = this.getScriptOutputFilename(entryName);
-      compilation.assets[outputFilename] = {
-        source: () => script,
-        size: () => Buffer.byteLength(script),
-      };
-    });
+  emitStartupScript(compilation, script, entryName){
+    var outputFilename = this.getScriptOutputFilename(entryName);
+    compilation.assets[outputFilename] = {
+      source: () => script,
+      size: () => Buffer.byteLength(script),
+    };
   }
 
   getScriptOutputFilename(entryName){
@@ -162,28 +195,53 @@ class BundleEnsureWebpackPlugin extends Tapable {
         entryManifests.set(entryName, manifest);
       }
 
-      var entryScripts = new Map();
-      entryManifests.forEach((manifest, entryName) => {
-        var entrypoint = compilation.entrypoints[entryName];
-        var startupScript = this.applyPluginsWaterfall("render-entry-startup", true, manifest, entrypoint, compilation);
-        entryScripts.set(entryName, startupScript);
-      });
-
+      /*
+       * using with html-webpack-plugin
+       * take care of using muti entrypoints in one page.
+       * should filter out entrypoints through the entry chunks which are included in page.
+       */
       if(options.associateWithHtmlPlugin){
-        //TODO filter by include entry chunks
+        var startupScript;
         compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
+          var entrypointsMap = this.findEntrypointsInHtml(htmlPluginData.chunks, compilation);
+          var manifests = [];
+          entrypointsMap.forEach((point, entryName) => {
+            manifests.push(entryManifests.get(entryName));
+          });
+          var manifest = this.mergeManifest(manifests);
+          var entrypoints = Array.from(entrypointsMap.values());
+          startupScript = this.applyPluginsWaterfall("render-startup", true, manifest, entrypoints, compilation);
+
+          // can't use tag insert because if user set "inject:false" it will not work.
+          // so we have to force inject it by modify the html late, otherwise we have no way to pass it.
+          // unless we could add args into html-plugin's template render function.
+          /*
           htmlPluginData.body.push({
             tagName: "script",
             closeTag: true,
             innerHTML: startupScript,
           })
+          */
+          callback(null, htmlPluginData);
+        });
+        compilation.plugin('html-webpack-plugin-after-html-processing', (htmlPluginData, callback) => {
+          htmlPluginData.html = htmlPluginData.html.replace(/<\/body>/, `<script>${startupScript}</script></body>`);
           callback(null, htmlPluginData);
         });
       }
 
+      /*
+       * emit startup script to assets. not recommended.
+       * the script should be insert inline to avoid load failure.
+       * unless using other way such like server rendering.
+       */
       if(options.emitStartup){
         compiler.plugin("emit", (compilation, callback) => {
-          this.emitStartupScript(compilation, entryScripts);
+          entryManifests.forEach((manifest, entryName) => {
+            var entrypoint = compilation.entrypoints[entryName];
+            var startupScript = this.applyPluginsWaterfall("render-startup", true, manifest, [entrypoint], compilation);
+            this.emitStartupScript(compilation, startupScript, entryName);
+          });
           callback();
         });
       }

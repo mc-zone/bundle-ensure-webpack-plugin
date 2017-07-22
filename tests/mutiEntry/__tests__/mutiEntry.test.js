@@ -76,6 +76,8 @@ describe("mutiEntry with commonChunk", () => {
     expect(() => {
       vm.runInContext(index1Startup, ctx);
     }).toThrow("I am index1!");
+    expect(consoleLog).toBeCalled();
+    expect(consoleLog.mock.calls[0][0]).toBe("I am commonLib!");
   });
 });
 

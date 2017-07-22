@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build-test": "node --inspect ./tests/build.js",
-    "test": "node ./tests/build.js & jest"
+    "test": "node ./tests/build.js && jest"
   },
   "repository": {
     "type": "git",
@@ -31,9 +31,10 @@
   "devDependencies": {
     "html-webpack-plugin": "^2.29.0",
     "jest": "^20.0.4",
+    "phantomjs-prebuilt": "^2.1.14",
     "webpack": "^3.3.0"
   },
-  "jest":{
-    "verbose":true
+  "jest": {
+    "verbose": true
   }
 }
