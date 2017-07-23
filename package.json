@@ -34,6 +34,7 @@
     "html-webpack-plugin": "^2.29.0",
     "jest": "^20.0.4",
     "phantomjs-prebuilt": "^2.1.14",
+    "uglify-js": "^3.0.26",
     "webpack": "^3.3.0"
   },
   "jest": {
