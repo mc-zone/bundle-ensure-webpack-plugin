@@ -4,12 +4,12 @@ var BundleEnsureWebpackPlugin = require("../../");
 
 module.exports = {
   entry: {
-    index1:path.resolve(__dirname,'./index1.js'),
-    index2:path.resolve(__dirname,'./index2.js'),
+    index1:path.resolve(__dirname,"./index1.js"),
+    index2:path.resolve(__dirname,"./index2.js"),
   },
   output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, './dist'),
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "./dist"),
   },
   plugins:[
     new webpack.optimize.CommonsChunkPlugin({
@@ -22,5 +22,5 @@ module.exports = {
       emitStartup:true, 
     }),
   ]
-}
+};
 

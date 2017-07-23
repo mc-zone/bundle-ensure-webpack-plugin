@@ -1,4 +1,4 @@
-var phantomjs = require('phantomjs-prebuilt')
+var phantomjs = require("phantomjs-prebuilt");
 
 
 module.exports = function(script, args, timeout=10*1e3){
@@ -31,15 +31,13 @@ module.exports = function(script, args, timeout=10*1e3){
     program.on("error", err => {
       fail(err);
     });
-    program.on('exit', code => {
+    program.on("exit", code => {
       code == 0 ? done() : fail(`phantom exit with non-zero code: ${code}`);
     });
 
     timeoutId = setTimeout(() => {
       fail(new Error("phantom timeout"));
-      program.kill('SIGINT');
+      program.kill("SIGINT");
     }, timeout);
   });
-}
-
-
+};

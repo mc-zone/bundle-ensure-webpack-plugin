@@ -2,8 +2,9 @@
   "name": "bundle-ensure-webpack-plugin",
   "version": "0.0.1",
   "description": "ensure bundle loaded and make retry-able before startup",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
+    "lint": "eslint lib tests scripts template",
     "build-test": "node --inspect ./tests/build.js",
     "test": "node ./tests/build.js && jest"
   },
@@ -29,6 +30,7 @@
     "webpack": "^3.3.0"
   },
   "devDependencies": {
+    "eslint": "^4.3.0",
     "html-webpack-plugin": "^2.29.0",
     "jest": "^20.0.4",
     "phantomjs-prebuilt": "^2.1.14",

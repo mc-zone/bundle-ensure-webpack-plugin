@@ -8,7 +8,7 @@ describe("singleEntry", () => {
 
   var retryFn = jest.fn();
   var consoleError = jest.fn();
-  var ctx = { window: { retry: retryFn }, console: {  error: consoleError } };
+  var ctx = { window: { retry: retryFn }, console: { error: consoleError } };
   vm.createContext(ctx);
 
   test("startup should realize chunk dosen't exist and launch retry", () => {
@@ -29,5 +29,3 @@ describe("singleEntry", () => {
     }).toThrow("I am index!");
   });
 });
-
-

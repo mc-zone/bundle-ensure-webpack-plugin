@@ -4,7 +4,7 @@ var webpack = require("webpack");
 
 fs.readdir(__dirname, function(err, list){
   if(err) throw err;
-  var dirs = list.filter(function(name){return !/\./.test(name)});
+  var dirs = list.filter(name => !/\./.test(name));
 
   dirs.forEach(function(dir){
     webpack(require(path.resolve(__dirname, dir, "webpack.config.js")), function(err, stats){
@@ -24,5 +24,5 @@ fs.readdir(__dirname, function(err, list){
         colors:true
       }) + "\n");
     }); 
-  })
-})
+  });
+});

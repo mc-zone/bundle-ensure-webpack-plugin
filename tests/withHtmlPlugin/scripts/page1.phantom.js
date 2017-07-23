@@ -1,5 +1,5 @@
-var fs = require('fs');
-var page = require('webpage').create();
+var fs = require("fs");
+var page = require("webpage").create();
 
 var htmlPath = fs.absolute("tests/withHtmlPlugin/dist/index1.html");
 

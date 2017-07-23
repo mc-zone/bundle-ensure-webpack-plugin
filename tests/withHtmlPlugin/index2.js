@@ -1,2 +1,2 @@
 require("./commonLib");
-console.log("I am index2!")
+console.log("I am index2!");

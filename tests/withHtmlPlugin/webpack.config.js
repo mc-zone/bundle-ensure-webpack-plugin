@@ -5,12 +5,12 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: {
-    index1:path.resolve(__dirname,'./index1.js'),
-    index2:path.resolve(__dirname,'./index2.js'),
+    index1:path.resolve(__dirname,"./index1.js"),
+    index2:path.resolve(__dirname,"./index2.js"),
   },
   output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, './dist'),
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "./dist"),
   },
   plugins:[
     new webpack.optimize.CommonsChunkPlugin({
@@ -23,39 +23,39 @@ module.exports = {
     }),
 
     new HtmlWebpackPlugin({
-      filename: 'index1.html',
+      filename: "index1.html",
       chunks:["common", "index1"],
     }),
 
     //for test
     new HtmlWebpackPlugin({
-      filename: 'index2-missingcommon.html',
+      filename: "index2-missingcommon.html",
       chunks:["index2"],
     }),
     //for test
     new HtmlWebpackPlugin({
-      filename: 'index2-missingindex.html',
-      template: path.resolve(__dirname, './template-missingindex.html'),
-      chunks:["index2"],
-      inject:false,
-    }),
-    //for test
-    new HtmlWebpackPlugin({
-      filename: 'index2-missingall.html',
+      filename: "index2-missingindex.html",
+      template: path.resolve(__dirname, "./template-missingindex.html"),
       chunks:["index2"],
       inject:false,
     }),
     //for test
     new HtmlWebpackPlugin({
-      filename: 'index-muti.html',
+      filename: "index2-missingall.html",
+      chunks:["index2"],
+      inject:false,
+    }),
+    //for test
+    new HtmlWebpackPlugin({
+      filename: "index-muti.html",
       chunks:["common", "index1", "index2"],
     }),
     //for test
     new HtmlWebpackPlugin({
-      filename: 'index-muti-missingcommon.html',
+      filename: "index-muti-missingcommon.html",
       chunks:["index1", "index2"],
     }),
   ]
-}
+};
 
 

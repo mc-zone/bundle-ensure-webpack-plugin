@@ -4,7 +4,6 @@ var vm = require("vm");
 
 describe("mutiEntry with commonChunk", () => {
   var index1Bundle = fs.readFileSync(path.resolve(__dirname, "../dist/index1.bundle.js"), "utf8");
-  var index2Bundle = fs.readFileSync(path.resolve(__dirname, "../dist/index2.bundle.js"), "utf8");
   var commonBundle = fs.readFileSync(path.resolve(__dirname, "../dist/common.bundle.js"), "utf8");
   var index1Startup = fs.readFileSync(path.resolve(__dirname, "../dist/index1.startup.js"), "utf8");
   var index2Startup = fs.readFileSync(path.resolve(__dirname, "../dist/index2.startup.js"), "utf8");
@@ -80,6 +79,3 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleLog.mock.calls[0][0]).toBe("I am commonLib!");
   });
 });
-
-
-
