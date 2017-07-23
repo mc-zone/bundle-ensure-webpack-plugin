@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "lint": "eslint lib tests scripts template",
-    "build-test": "node --inspect ./tests/build.js",
+    "build-test": "node --inspect-brk ./tests/build.js",
     "test": "node ./tests/build.js && jest"
   },
   "repository": {
