@@ -1,7 +1,8 @@
 var phantomjs = require("phantomjs-prebuilt");
 
 
-module.exports = function(script, args, timeout=10*1e3){
+module.exports = function(script, args, timeout){
+  timeout = timeout || 10*1e3;
   return new Promise((resolve, reject) => {
     var runner = phantomjs.exec.bind(phantomjs, script);
     var program = runner.apply(phantomjs, args);
