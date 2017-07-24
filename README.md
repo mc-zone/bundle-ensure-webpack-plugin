@@ -15,7 +15,7 @@ Assume there were muti chunks (commonChunks) or other bundles (externals, Dlls) 
 <script src="./entry.bundle.js"></script>
 ```
 
-Meanwhile if **one of them failed to load, the entry will stil be execute and failure**:
+Meanwhile if **one of them failed to load, the entry will still be execute and end with throw exception**:
 
 ![image](https://user-images.githubusercontent.com/4403937/27761817-fbd0b6c6-5e96-11e7-8c5e-1fdbc411c0ab.png)
 
@@ -27,18 +27,19 @@ We have no chance to detect or reload the missing bundle on webpack. Unless we u
 
 ### So the `bundle-ensure-webpack-plugin` is what I made for solve this problem: ###
 
-- make a wrap to each chunks, prevent the immediate execution. (compile-time)
+- make a wrap to each chunks, prevent the immediate execution. (Compile time)
 
-- count entry's chunk manifest which includes commonChunks, externals, dlls, inline to the page (auto associate with html-webpack-plugin) with startup code. (compile-time)
+- count entry's chunk manifest which includes commonChunks, externals, dlls, then inline to the page (auto associate with html-webpack-plugin) with startup code. (Compile time)
 
-- check first and ensure all these things are installed before run the entry. (run-time)
+- check first and ensure all these things are installed before run the entry. (Run time)
 
-- make a retry/reload hook for each missing item. (run-time)
+- make a retry/reload hook for each missing item. (Run time)
 
 If you are using quite a few split-bundles or externals to one page(with webpack) and have a strong demand for load/reload guarantee (For example, serving for some regions which have weak-network or hijacked frequently). you could try this plugin.
 
 
 ## Install
+
 ```bash
 npm i bundle-ensure-webpack-plugin --save
 ```
@@ -140,15 +141,15 @@ See [examples](/examples/).
 
 - **publicPath**: String. provide a alternative publicPath for chunk reload.
 
-- **appendTime**: default is `true`, when retry, append timestamp to url's querystring, to avoid cache.
+- **appendTime**: default is `true`, append timestamp to retry url's querystring, to avoid cache.
 
-- **associateWithHtmlPlugin**: default is `true`, auto inline the startup code with [`html-webpack-plugin`](https://github.com/jantimon/html-webpack-plugin).
+- **associateWithHtmlPlugin**: default is `true`, auto inline the startup code into the HTML page with [`html-webpack-plugin`](https://github.com/jantimon/html-webpack-plugin).
 
 - **retryTemplate**: String. default is `"default"`, can pass a plain javascript code snippet as your own retry handler which will be compiled into startup code.(See the [retry template](/template/retry/))
 
-- **emitStartup**: default is `false`, output the startup code of each entrypoint to disk. the startup code should be inline to the page to avoid load failure. So this option is not recommended to use unless you are using other way who need it such as server rendering.
+- **emitStartup**: default is `false`, output each entrypoint's startup code to disk. the startup code should be inline to the page to avoid load failure. So it's not recommended to use unless you are using other way who need it such as server rendering.
 
-- **startupFilename**: String. default is `[name].startup.js`. Only work when `emitStartup` enabled. (files will be output to your `webpackOptions.output.path`).
+- **startupFilename**: String. default is `[name].startup.js`. Only work with `emitStartup` enabled. (files will be output to your `webpackOptions.output.path`).
 
 ## License
 
