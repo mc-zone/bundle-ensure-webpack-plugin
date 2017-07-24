@@ -49,7 +49,7 @@ describe("mutiEntry with commonChunk", () => {
   test("commonChunk should run by startup code, instead of automatically", () => {
     vm.runInContext(commonBundle, ctx);
     expect(consoleLog).not.toBeCalled();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx);
     expect(consoleError).toBeCalled();
@@ -63,7 +63,7 @@ describe("mutiEntry with commonChunk", () => {
     expect(() => {
       vm.runInContext(index1Bundle, ctx);
     }).not.toThrow();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx);
     expect(consoleError).toBeCalled();

@@ -23,7 +23,7 @@ describe("singleEntry", () => {
     expect(() => {
       vm.runInContext(bundle, ctx);
     }).not.toThrow();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
     expect(() => {
       vm.runInContext(startupScript, ctx);
     }).toThrow("I am index!");
