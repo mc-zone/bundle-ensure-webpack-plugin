@@ -9,7 +9,7 @@ module.exports = {
     entry2: path.resolve(__dirname,"./entry2.js"),
   },
   output: {
-    filename: "[name]-[chunkhash].js",
+    filename: "[name]-[chunkhash].js?hash=[hash]",
     path: path.resolve(__dirname, "./dist"),
     publicPath: "http://example.com/"
   },
@@ -21,21 +21,23 @@ module.exports = {
       name: "common",
       filename: "commonChunk.js",
     }),
-    new BundleEnsureWebpackPlugin({
-      externalsUrl:{
-        jQuery:"https://code.jquery.com/jquery-3.2.1.min.js",
-      },
-      retryTemplate:"console.log(bundleInfo, publicPath)",
-    }),
 
     new HtmlWebpackPlugin({
-      chunks:["common", "entry1"],
+      chunks:["entry1"],
       filename: "index1.html"
     }),
     new HtmlWebpackPlugin({
       chunks:["common", "entry2"],
       filename: "index2.html"
-    })
+    }),
+
+    new BundleEnsureWebpackPlugin({
+      publicPath:"./",
+      externals:{
+        jQuery:"https://code.jquery.com/jquery-3.2.1.min.js",
+      }
+    }),
+
   ]
 };
 

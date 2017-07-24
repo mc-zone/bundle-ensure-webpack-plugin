@@ -16,7 +16,7 @@ describe("singleEntry", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toBeCalled();
     expect(retryFn.mock.calls[0][0].name).toBe("main");
-    expect(retryFn.mock.calls[0][0].url).toBe("main.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("main.bundle.js");
   });
 
   test("entry should run by startup code, instead of automatically", () => {

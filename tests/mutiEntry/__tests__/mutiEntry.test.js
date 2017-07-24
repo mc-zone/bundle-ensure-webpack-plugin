@@ -30,9 +30,9 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(2);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
     expect(retryFn.mock.calls[1][0].name).toBe("index1");
-    expect(retryFn.mock.calls[1][0].url).toBe("index1.bundle.js");
+    expect(retryFn.mock.calls[1][0].filename).toBe("index1.bundle.js");
 
     consoleError.mockClear();
     retryFn.mockClear();
@@ -40,9 +40,9 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(2);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
     expect(retryFn.mock.calls[1][0].name).toBe("index2");
-    expect(retryFn.mock.calls[1][0].url).toBe("index2.bundle.js");
+    expect(retryFn.mock.calls[1][0].filename).toBe("index2.bundle.js");
 
   });
 
@@ -55,7 +55,7 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("index1");
-    expect(retryFn.mock.calls[0][0].url).toBe("index1.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("index1.bundle.js");
     expect(consoleLog).not.toBeCalled();
   });
 
@@ -69,7 +69,7 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
 
     vm.runInContext(commonBundle, ctx);
     expect(() => {

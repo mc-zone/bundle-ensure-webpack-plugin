@@ -5,7 +5,6 @@
   "main": "./lib/index.js",
   "scripts": {
     "lint": "eslint lib tests scripts template examples",
-    "build-test": "node --inspect-brk ./tests/build.js",
     "build-example": "webpack --config examples/webpack.config.js",
     "test": "node ./tests/build.js && jest"
   },
