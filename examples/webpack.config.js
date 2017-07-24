@@ -11,7 +11,9 @@ module.exports = {
   output: {
     filename: "[name]-[chunkhash].js?hash=[hash]",
     path: path.resolve(__dirname, "./dist"),
-    publicPath: "http://example.com/"
+    
+    // Failed to load? the plugin will reload for you!
+    publicPath: "http://example.com/" 
   },
   externals:{
     jQuery:"jQuery",
@@ -23,21 +25,23 @@ module.exports = {
     }),
 
     new HtmlWebpackPlugin({
-      chunks:["entry1"],
-      filename: "index1.html"
+      chunks:["common", "entry1"],
+      filename: "index1.html",
     }),
     new HtmlWebpackPlugin({
-      chunks:["common", "entry2"],
-      filename: "index2.html"
+      // Forgotten common? the plugin will also reload it.
+      chunks:["entry2"], 
+      filename: "index2.html",
     }),
 
     new BundleEnsureWebpackPlugin({
-      publicPath:"./",
+      // Provide a alternative publicPath for reload.
+      publicPath:"./", 
+      // Provide urls for externals reload.
       externals:{
-        jQuery:"https://code.jquery.com/jquery-3.2.1.min.js",
+        jQuery:"https://code.jquery.com/jquery-3.2.1.min.js", 
       }
     }),
-
   ]
 };
 
