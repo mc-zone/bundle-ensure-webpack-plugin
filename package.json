@@ -1,6 +1,6 @@
 {
   "name": "bundle-ensure-webpack-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ensure bundle installed and make retry-able before startup",
   "main": "./lib/index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "tapable": "^0.2.7",
+    "uglify-js": "^3.0.26",
     "webpack-sources": "^1.0.1"
   },
   "peerDependencies": {
@@ -34,7 +35,6 @@
     "html-webpack-plugin": "^2.29.0",
     "jest": "^20.0.4",
     "phantomjs-prebuilt": "^2.1.14",
-    "uglify-js": "^3.0.26",
     "webpack": "^3.3.0"
   },
   "jest": {
