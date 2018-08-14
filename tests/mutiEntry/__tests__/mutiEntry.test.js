@@ -46,7 +46,7 @@ describe("mutiEntry with commonChunk", () => {
 
   });
 
-  test("commonChunk should run by startup code, instead of automatically", () => {
+  test("commonChunk should run by startup code, not automatically", () => {
     vm.runInContext(commonBundle, ctx);
     expect(consoleLog).not.toBeCalled();
     expect(ctx.window.__WPE__).toBeDefined();

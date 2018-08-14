@@ -11,11 +11,23 @@ module.exports = {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "./dist"),
   },
+  mode: "production",
+  devtool: false,
+  optimization: {
+    minimize: false,
+    splitChunks: {
+      chunks: "all",
+      minSize: 0,
+      cacheGroups: {
+        common: {
+          name: "common",
+          test: /commonLib/,
+          minSize: 0,
+        }
+      }
+    }
+  },
   plugins:[
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "common",
-      filename: "common.bundle.js",
-    }),
     new BundleEnsureWebpackPlugin({
       //for test
       retryTemplate:"window.retry(bundleInfo, callback);",

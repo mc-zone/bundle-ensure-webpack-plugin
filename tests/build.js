@@ -1,6 +1,8 @@
 var fs = require("fs");
 var path = require("path");
 var webpack = require("webpack");
+var rimraf = require("rimraf");
+const only = process.argv[2];
 
 function webpackBuild(configPath, cb){
   webpack(require(configPath), function(err, stats){
@@ -25,22 +27,23 @@ function webpackBuild(configPath, cb){
 
 fs.readdir(__dirname, function(err, list){
   if(err) throw err;
-  var dirs = list.filter(name => !/\./.test(name));
+  var dirs = list.filter(name => !/\./.test(name)).filter(name => !only || name.indexOf(only) !== -1);
 
   dirs.forEach(function(dir){
-    var buildConfig = path.resolve(__dirname, dir, "webpack.config.js");
-    var prebuildConfig = path.resolve(__dirname, dir, "webpack.prebuild.config.js");
-    try{
-      fs.statSync(prebuildConfig);
-    }catch(e){
-      prebuildConfig = null;
-    }
-    if(prebuildConfig){
-      webpackBuild(prebuildConfig, function(){
+    rimraf(path.resolve(__dirname, dir, "./dist"), (err) => {
+      if(err){
+        return console.error(err);
+      }
+      var buildConfig = path.resolve(__dirname, dir, "webpack.config.js");
+      var prebuildConfig = path.resolve(__dirname, dir, "webpack.prebuild.config.js");
+      if(fs.existsSync(prebuildConfig)){
+        webpackBuild(prebuildConfig, function(){
+          webpackBuild(buildConfig);
+        });
+      }else{
         webpackBuild(buildConfig);
-      });
-    }else{
-      webpackBuild(buildConfig);
-    }
+      }
+    });
   });
 });
+

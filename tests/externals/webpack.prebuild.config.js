@@ -11,7 +11,12 @@ module.exports = {
   output: {
     filename: "[name].dll.js",
     path: path.resolve(__dirname, "./dist"),
-    library: "[name]"
+    library: "[name]",
+  },
+  mode: "production",
+  devtool: false,
+  optimization: {
+    minimize: false,
   },
   plugins:[
     new webpack.DllPlugin({

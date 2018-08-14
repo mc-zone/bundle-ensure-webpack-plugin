@@ -13,6 +13,11 @@ module.exports = {
     jquery: "jQuery",
     lodash : "commonjs lodash",
   },
+  mode: "production",
+  devtool: false,
+  optimization: {
+    minimize: false,
+  },
   plugins:[
     new webpack.DllReferencePlugin({
       context:__dirname,
