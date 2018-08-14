@@ -16,14 +16,14 @@ describe("singleEntry", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toBeCalled();
     expect(retryFn.mock.calls[0][0].name).toBe("main");
-    expect(retryFn.mock.calls[0][0].url).toBe("main.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("main.bundle.js");
   });
 
   test("entry should run by startup code, instead of automatically", () => {
     expect(() => {
       vm.runInContext(bundle, ctx);
     }).not.toThrow();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
     expect(() => {
       vm.runInContext(startupScript, ctx);
     }).toThrow("I am index!");

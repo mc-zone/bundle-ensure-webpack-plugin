@@ -30,9 +30,9 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(2);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
     expect(retryFn.mock.calls[1][0].name).toBe("index1");
-    expect(retryFn.mock.calls[1][0].url).toBe("index1.bundle.js");
+    expect(retryFn.mock.calls[1][0].filename).toBe("index1.bundle.js");
 
     consoleError.mockClear();
     retryFn.mockClear();
@@ -40,22 +40,22 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(2);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
     expect(retryFn.mock.calls[1][0].name).toBe("index2");
-    expect(retryFn.mock.calls[1][0].url).toBe("index2.bundle.js");
+    expect(retryFn.mock.calls[1][0].filename).toBe("index2.bundle.js");
 
   });
 
   test("commonChunk should run by startup code, not automatically", () => {
     vm.runInContext(commonBundle, ctx);
     expect(consoleLog).not.toBeCalled();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx);
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("index1");
-    expect(retryFn.mock.calls[0][0].url).toBe("index1.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("index1.bundle.js");
     expect(consoleLog).not.toBeCalled();
   });
 
@@ -63,13 +63,13 @@ describe("mutiEntry with commonChunk", () => {
     expect(() => {
       vm.runInContext(index1Bundle, ctx);
     }).not.toThrow();
-    expect(ctx.window.__WPE__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx);
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].url).toBe("common.bundle.js");
+    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
 
     vm.runInContext(commonBundle, ctx);
     expect(() => {

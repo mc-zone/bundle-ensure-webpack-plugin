@@ -1,11 +1,10 @@
 {
   "name": "bundle-ensure-webpack-plugin",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "ensure bundle installed and make retry-able before startup",
   "main": "./lib/index.js",
   "scripts": {
     "lint": "eslint lib tests scripts template examples",
-    "build-test": "node --inspect-brk ./tests/build.js",
     "build-example": "webpack --config examples/webpack.config.js",
     "test": "node ./tests/build.js && jest"
   },
@@ -25,7 +24,11 @@
   "license": "MIT",
   "dependencies": {
     "tapable": "^1.0.0",
-    "webpack-sources": "^1.1.0"
+    "webpack-sources": "^1.1.0",
+    "uglify-js": "^3.0.26"
+  },
+  "peerDependencies": {
+    "webpack": "^4.16.5"
   },
   "devDependencies": {
     "eslint": "^4.3.0",
@@ -33,7 +36,6 @@
     "jest": "^20.0.4",
     "phantomjs-prebuilt": "^2.1.16",
     "rimraf": "^2.6.2",
-    "uglify-js": "^3.0.26",
     "webpack": "^4.16.5"
   },
   "jest": {
