@@ -1,13 +1,13 @@
 # bundle-ensure-webpack-plugin [![Build Status](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin.svg?branch=master)](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin) [![npm version](https://badge.fury.io/js/bundle-ensure-webpack-plugin.svg)](http://badge.fury.io/js/bundle-ensure-webpack-plugin) 
 
-ensure bundle installed and make retry-able before startup.
+Ensure bundle installed and make it retry-able before startup.
 
 
 ## Purpose
 
-We know that webpack don't care about how bundle/script loaded, and our entry bundle will be **execute immediatly**.
+We know that webpack don't care about how bundle/script loaded, and our entry bundle will be **execute immediately**.
 
-Assume there were muti chunks (commonChunks) or other bundles (externals, Dlls) put on the page:
+Assume there were muti chunks (commonChunks/splitedChunks) or other bundles (externals, Dlls) on the page:
 
 ```HTML
 <script src="./dll/common.bundle.js"></script>
@@ -15,7 +15,7 @@ Assume there were muti chunks (commonChunks) or other bundles (externals, Dlls) 
 <script src="./entry.bundle.js"></script>
 ```
 
-Meanwhile if **one of them failed to load, the entry will still be execute and end with throw exception**:
+Meanwhile if **one of them failed to load, the entry will still be executed and end with throw exception**:
 
 ![image](https://user-images.githubusercontent.com/4403937/27761817-fbd0b6c6-5e96-11e7-8c5e-1fdbc411c0ab.png)
 
@@ -23,33 +23,33 @@ Meanwhile if **one of them failed to load, the entry will still be execute and e
 
 [A issue on webpack](https://github.com/webpack/webpack/issues/5197).
 
-We have no chance to detect or reload the missing bundle on webpack. Unless we use an entire of script load system (sunch like requireJS) to load all of them in application, but it's too heavy, at least to me.
+We have no chance to detect or reload the missing bundle on webpack. Unless we use an entire of script load system (such as requireJS) to load all of them in the application, but it's too heavy, at least to me.
 
 ### So the `bundle-ensure-webpack-plugin` is what I made for solve this problem: ###
 
-- make a wrap to each chunks, prevent the immediate execution. (Compile time)
+- make a wrap to each chunk, prevent the immediate execution. (Compile-time)
 
-- count entry's chunk manifest which includes commonChunks, externals, dlls, then inline to the page (auto associate with html-webpack-plugin) with startup code. (Compile time)
+- output entry's chunk manifest which includes common chunks, externals, dlls, then inline to the page (auto-associate with html-webpack-plugin) along with startup code. (Compile-time)
 
-- check first and ensure all these things are installed before run the entry. (Run time)
+- check first and ensure all of these things have existed before running the entry. (Run-time)
 
-- make a retry/reload hook for each missing item. (Run time)
+- make a hook to retry/reload each missing item. (Run-time)
 
-If you are using quite a few split-bundles or externals to one page(with webpack) and have a strong demand for load/reload guarantee (For example, serving for some regions which have weak-network or hijacked frequently). you could try this plugin.
+If you are using quite a few split-bundles or externals(with webpack) and have a strong demand for load/reload guarantee (For example, serving for some regions which have weak-network or hijacked frequently). you could try this plugin.
 
 
 ## Install
 
 ```bash
-npm i bundle-ensure-webpack-plugin --save
+yarn add bundle-ensure-webpack-plugin
 ```
 
 ## Useage
 
-Just put the plugin in your webpack.config.js
+Just add the plugin in your webpack.config.js
 
 ```javascript
-var BundleEnsureWebpackPlugin = require("bundle-ensure-webpack-plugin");
+const BundleEnsureWebpackPlugin = require("bundle-ensure-webpack-plugin");
 ```
 
 ```javascript
@@ -60,12 +60,21 @@ module.exports = {
     path: path.resolve(__dirname, "./dist"),
     publicPath:"https://cdn1.com/", 
   },
+  optimization: {
+    minimize: false,
+    splitChunks: {
+      chunks: "all",
+      minSize: 0,
+      cacheGroups: {
+        common: {
+          name: "common",
+          test: /lib/,
+          minSize: 0
+        }
+      }
+    }
+  },
   plugins:[
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "common",
-      filename: "commonChunk.js",
-    }),
-
     new HtmlWebpackPlugin(),
 
     new BundleEnsureWebpackPlugin({
@@ -76,7 +85,7 @@ module.exports = {
 };
 ```
 
-Also can find dlls/externals and reload them when they were lost.
+It also can find dlls/externals and reload them when they were lost.
 
 ```javascript
 module.exports = {
@@ -137,19 +146,19 @@ See [examples](/examples/).
 
 ## Options
 
-- **externals**: Object. provide reload url for each external.
+- **externals**: Object. Provide reload URL for each external.
 
-- **publicPath**: String. provide a alternative publicPath for chunk reload.
+- **publicPath**: String. Provide an alternative publicPath for chunk reload.
 
-- **appendTime**: default is `true`, append timestamp to retry url's querystring, to avoid cache.
+- **appendTime**: Default is `true`, append timestamp to retry URL's querystring to avoid cache.
 
-- **associateWithHtmlPlugin**: default is `true`, auto inline the startup code into the HTML page with [`html-webpack-plugin`](https://github.com/jantimon/html-webpack-plugin).
+- **associateWithHtmlPlugin**: Default is `true`, auto inline the startup code into the HTML page with [`html-webpack-plugin`](https://github.com/jantimon/html-webpack-plugin).
 
-- **retryTemplate**: String. default is `"default"`, can pass a plain javascript code snippet as your own retry handler which will be compiled into startup code.(See the [retry template](/template/retry/))
+- **retryTemplate**: String. Default is `"default"`. You can pass a plain javascript code snippet as your own retry handler which will be inserted into startup code. See the [retry template](/template/retry/))
 
-- **emitStartup**: default is `false`, output each entrypoint's startup code to disk. the startup code should be inline to the page to avoid load failure. So it's not recommended to use unless you are using other way who need it such as server rendering.
+- **emitStartup**: Default is `false`. Output each entry point's startup code to disk. the startup code should be inline to the page to avoid load failure. So it's not recommended to use unless you are using another way who need it such as server rendering.
 
-- **startupFilename**: String. default is `[name].startup.js`. Only work with `emitStartup` enabled. (files will be output to your `webpackOptions.output.path`).
+- **startupFilename**: String. Default is `[name].startup.js`. Only available while `emitStartup` has enabled. (Files will be outputted to your `webpackOptions.output.path`).
 
 ## License
 
