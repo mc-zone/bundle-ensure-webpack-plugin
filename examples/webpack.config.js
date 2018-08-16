@@ -1,7 +1,6 @@
-var path = require("path");
-var webpack = require("webpack");
-var HtmlWebpackPlugin = require("html-webpack-plugin");
-var BundleEnsureWebpackPlugin = require("../");
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const BundleEnsureWebpackPlugin = require("../");
 
 module.exports = {
   entry: {
@@ -9,7 +8,7 @@ module.exports = {
     entry2: path.resolve(__dirname, "./entry2.js")
   },
   output: {
-    filename: "[name]-[chunkhash].js?hash=[hash]",
+    filename: "[name]-[hash].js",
     path: path.resolve(__dirname, "./dist"),
 
     // Failed to load? the plugin will reload for you!
@@ -18,12 +17,23 @@ module.exports = {
   externals: {
     jQuery: "jQuery"
   },
+  mode: "production",
+  devtool: false,
+  optimization: {
+    minimize: false,
+    splitChunks: {
+      chunks: "all",
+      minSize: 0,
+      cacheGroups: {
+        common: {
+          name: "common",
+          test: /lib/,
+          minSize: 0
+        }
+      }
+    }
+  },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "common",
-      filename: "commonChunk.js"
-    }),
-
     new HtmlWebpackPlugin({
       chunks: ["common", "entry1"],
       filename: "index1.html"

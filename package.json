@@ -37,7 +37,8 @@
     "phantomjs-prebuilt": "^2.1.16",
     "prettier": "^1.14.2",
     "rimraf": "^2.6.2",
-    "webpack": "^4.16.5"
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0"
   },
   "jest": {
     "verbose": true
