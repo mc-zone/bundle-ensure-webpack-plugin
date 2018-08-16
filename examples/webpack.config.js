@@ -5,44 +5,42 @@ var BundleEnsureWebpackPlugin = require("../");
 
 module.exports = {
   entry: {
-    entry1: path.resolve(__dirname,"./entry1.js"),
-    entry2: path.resolve(__dirname,"./entry2.js"),
+    entry1: path.resolve(__dirname, "./entry1.js"),
+    entry2: path.resolve(__dirname, "./entry2.js")
   },
   output: {
     filename: "[name]-[chunkhash].js?hash=[hash]",
     path: path.resolve(__dirname, "./dist"),
-    
+
     // Failed to load? the plugin will reload for you!
-    publicPath: "http://example.com/" 
+    publicPath: "http://example.com/"
   },
-  externals:{
-    jQuery:"jQuery",
+  externals: {
+    jQuery: "jQuery"
   },
-  plugins:[
+  plugins: [
     new webpack.optimize.CommonsChunkPlugin({
       name: "common",
-      filename: "commonChunk.js",
+      filename: "commonChunk.js"
     }),
 
     new HtmlWebpackPlugin({
-      chunks:["common", "entry1"],
-      filename: "index1.html",
+      chunks: ["common", "entry1"],
+      filename: "index1.html"
     }),
     new HtmlWebpackPlugin({
       // Forgotten common? the plugin will also reload it.
-      chunks:["entry2"], 
-      filename: "index2.html",
+      chunks: ["entry2"],
+      filename: "index2.html"
     }),
 
     new BundleEnsureWebpackPlugin({
       // Provide a alternative publicPath for reload.
-      publicPath:"./", 
+      publicPath: "./",
       // Provide urls for externals reload.
-      externals:{
-        jQuery:"https://code.jquery.com/jquery-3.2.1.min.js", 
+      externals: {
+        jQuery: "https://code.jquery.com/jquery-3.2.1.min.js"
       }
-    }),
+    })
   ]
 };
-
-

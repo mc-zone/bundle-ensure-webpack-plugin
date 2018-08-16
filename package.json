@@ -4,9 +4,9 @@
   "description": "ensure bundle installed and make retry-able before startup",
   "main": "./lib/index.js",
   "scripts": {
-    "lint": "eslint lib tests scripts template examples",
+    "lint": "prettier --write \"{lib,examples,scripts,template, tests}/**/*.js\" && eslint lib tests scripts template examples --fix",
     "build-example": "webpack --config examples/webpack.config.js",
-    "test": "node ./tests/build.js && jest"
+    "test": "yarn lint && node ./tests/build.js && jest"
   },
   "repository": {
     "type": "git",
@@ -24,8 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "tapable": "^1.0.0",
-    "webpack-sources": "^1.1.0",
-    "uglify-js": "^3.0.26"
+    "uglify-js": "^3.0.26",
+    "webpack-sources": "^1.1.0"
   },
   "peerDependencies": {
     "webpack": "^4.16.5"
@@ -35,6 +35,7 @@
     "html-webpack-plugin": "^3.2.0",
     "jest": "^20.0.4",
     "phantomjs-prebuilt": "^2.1.16",
+    "prettier": "^1.14.2",
     "rimraf": "^2.6.2",
     "webpack": "^4.16.5"
   },

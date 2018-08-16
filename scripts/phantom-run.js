@@ -1,21 +1,21 @@
 var phantomjs = require("phantomjs-prebuilt");
 
-
-module.exports = function(script, args, timeout){
-  timeout = timeout || 10*1e3;
+module.exports = function(script, args, timeout) {
+  timeout = timeout || 10 * 1e3;
   return new Promise((resolve, reject) => {
     var runner = phantomjs.exec.bind(phantomjs, script);
     var program = runner.apply(phantomjs, args);
     var timeoutId = -1;
-    var stdout = "", stderr = "";
+    var stdout = "",
+      stderr = "";
 
-    function done(){
+    function done() {
       clearTimeout(timeoutId);
       resolve(stdout + stderr);
     }
-    function fail(error){
+    function fail(error) {
       clearTimeout(timeoutId);
-      if(!error){
+      if (!error) {
         error = new Error(stderr);
       }
       error.stdout = stdout;

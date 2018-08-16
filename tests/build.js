@@ -30,7 +30,7 @@ fs.readdir(__dirname, function(err, list){
   var dirs = list.filter(name => !/\./.test(name)).filter(name => !only || name.indexOf(only) !== -1);
 
   dirs.forEach(function(dir){
-    rimraf(path.resolve(__dirname, dir, "./dist"), (err) => {
+    rimraf(path.resolve(__dirname, dir, "./dist"), err => {
       if(err){
         return console.error(err);
       }
