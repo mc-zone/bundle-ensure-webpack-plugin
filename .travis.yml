@@ -3,10 +3,11 @@ sudo: enabled
 language: node_js
 
 node_js:
+- "10"
+- "9"
 - "8"
 - "7"
 - "6"
-- "4"
 
 cache:
   directories:
