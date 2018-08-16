@@ -1,4 +1,4 @@
-# bundle-ensure-webpack-plugin [![Build Status](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin.svg?branch=master)](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin) [![npm version](https://badge.fury.io/js/bundle-ensure-webpack-plugin.svg)](http://badge.fury.io/js/bundle-ensure-webpack-plugin) 
+# bundle-ensure-webpack-plugin [![Build Status](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin.svg?branch=webpack3)](https://travis-ci.org/mc-zone/bundle-ensure-webpack-plugin) [![npm version](https://badge.fury.io/js/bundle-ensure-webpack-plugin.svg)](http://badge.fury.io/js/bundle-ensure-webpack-plugin) 
 
 ensure bundle installed and make retry-able before startup.
 
@@ -41,7 +41,7 @@ If you are using quite a few split-bundles or externals to one page(with webpack
 ## Install
 
 ```bash
-npm i bundle-ensure-webpack-plugin --save
+npm i bundle-ensure-webpack-plugin@0.0.3 --save
 ```
 
 ## Useage
