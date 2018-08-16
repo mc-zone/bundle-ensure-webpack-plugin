@@ -44,7 +44,7 @@ If you are using quite a few split-bundles or externals(with webpack) and have a
 yarn add bundle-ensure-webpack-plugin
 ```
 
-Tips: If you're using webpack v2~3, please use the old version: [bundle-ensure-webpack-plugin@0.0.3](/tree/webpack3).
+Tips: If you're using webpack v2~3, please use the old version: [bundle-ensure-webpack-plugin@0.0.3](https://github.com/mc-zone/bundle-ensure-webpack-plugin/tree/webpack3).
 
 ## Useage
 
