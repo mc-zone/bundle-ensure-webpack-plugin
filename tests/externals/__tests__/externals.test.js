@@ -40,16 +40,16 @@ describe("with externals", () => {
     vm.runInContext(entryBundle, ctx);
     vm.runInContext(startup, ctx);
     expect(consoleWarn).toBeCalled();
-    var warnInfo = "", reTryNames = [];
+    var libraryWarnInfo = "", reTryNames = [];
     consoleWarn.mock.calls.forEach(call => {
-      warnInfo += call[0];
+      libraryWarnInfo += call[0];
     });
     retryFn.mock.calls.forEach(call => {
       reTryNames.push(call[0].name);
     });
-    expect(warnInfo).toEqual(expect.stringContaining("lodash"));
-    expect(warnInfo).toEqual(expect.stringContaining("commonjs"));
-    expect(warnInfo).not.toEqual(expect.stringContaining("jQuery"));
+    expect(libraryWarnInfo).toEqual(expect.stringContaining("lodash"));
+    expect(libraryWarnInfo).toEqual(expect.stringContaining("commonjs"));
+    expect(libraryWarnInfo).not.toEqual(expect.stringContaining("jQuery"));
 
     expect(reTryNames).toEqual(expect.arrayContaining(["jQuery", "commonLib"]));
     expect(reTryNames).not.toEqual(expect.arrayContaining(["lodash"]));

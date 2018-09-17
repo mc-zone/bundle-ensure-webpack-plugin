@@ -8,9 +8,13 @@ describe("singleEntry", () => {
 
   var retryFn = jest.fn();
   var consoleError = jest.fn();
-  var ctx = { window: { retry: retryFn }, console: { error: consoleError } };
-  vm.createContext(ctx);
-
+  var ctx;
+  beforeEach(() => {
+    retryFn.mockClear();
+    consoleError.mockClear();
+    ctx = { window: { retry: retryFn }, console: { error: consoleError } };
+    vm.createContext(ctx);
+  });
   test("startup should realize chunk dosen't exist and launch retry", () => {
     vm.runInContext(startupScript, ctx);
     expect(consoleError).toBeCalled();
@@ -19,7 +23,7 @@ describe("singleEntry", () => {
     expect(retryFn.mock.calls[0][0].filename).toBe("main.bundle.js");
   });
 
-  test("entry should run by startup code, instead of automatically", () => {
+  test("entry shouldn't run immediately but by the startup code", () => {
     expect(() => {
       vm.runInContext(bundle, ctx);
     }).not.toThrow();

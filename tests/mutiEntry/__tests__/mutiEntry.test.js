@@ -59,21 +59,23 @@ describe("mutiEntry with commonChunk", () => {
     expect(consoleLog).not.toBeCalled();
   });
 
-  test("entry should run by startup code, instead of automatically", () => {
+  test("entry should run by startup code, not automatically", () => {
+    expect(ctx.window.__WP_CHUNKS__).not.toBeDefined();
+    expect(ctx.window.__WP_CHUNKS_CHECK__).not.toBeDefined();
     expect(() => {
-      vm.runInContext(index1Bundle, ctx);
+      vm.runInContext(index1Bundle, ctx, {filename: "index1.bundle.js"});
     }).not.toThrow();
     expect(ctx.window.__WP_CHUNKS__).toBeDefined();
+    expect(ctx.window.__WP_CHUNKS_CHECK__).toBeDefined();
 
-    vm.runInContext(index1Startup, ctx);
+    vm.runInContext(index1Startup, ctx, {filename: "index1.startup.js"});
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
     expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
-
-    vm.runInContext(commonBundle, ctx);
+    
     expect(() => {
-      vm.runInContext(index1Startup, ctx);
+      vm.runInContext(commonBundle, ctx, {filename: "common.bundle.js"});
     }).toThrow("I am index1!");
     expect(consoleLog).toBeCalled();
     expect(consoleLog.mock.calls[0][0]).toBe("I am commonLib!");

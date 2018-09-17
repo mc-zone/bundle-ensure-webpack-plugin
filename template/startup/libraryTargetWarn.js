@@ -3,5 +3,5 @@ log.warn(
     item.name +
     " (which using \"" +
     item.libraryTarget +
-    "\" libraryTarget), just skipped."
+    "\" libraryTarget is not supported yet), just skipped."
 );
