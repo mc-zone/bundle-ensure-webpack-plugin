@@ -1,6 +1,6 @@
 {
   "name": "bundle-ensure-webpack-plugin",
-  "version": "1.0.0-rc",
+  "version": "1.0.0-rc2",
   "description": "ensure bundle installed and make retry-able before startup",
   "main": "./lib/index.js",
   "scripts": {
