@@ -10,5 +10,3 @@ page.onConsoleMessage = function(msg, lineNum, sourceId) {
 page.open("file://" + htmlPath, function(status) {
   phantom.exit();
 });
-
-

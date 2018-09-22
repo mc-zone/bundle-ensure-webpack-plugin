@@ -3,8 +3,14 @@ var fs = require("fs");
 var vm = require("vm");
 
 describe("with externals", () => {
-  var entryBundle = fs.readFileSync(path.resolve(__dirname, "../dist/main.bundle.js"), "utf8");
-  var startup = fs.readFileSync(path.resolve(__dirname, "../dist/main.startup.js"), "utf8");
+  var entryBundle = fs.readFileSync(
+    path.resolve(__dirname, "../dist/main.bundle.js"),
+    "utf8"
+  );
+  var startup = fs.readFileSync(
+    path.resolve(__dirname, "../dist/main.startup.js"),
+    "utf8"
+  );
 
   var retryFn = jest.fn();
   var consoleLog = jest.fn();
@@ -17,7 +23,12 @@ describe("with externals", () => {
     consoleLog.mockClear();
     consoleWarn.mockClear();
     consoleError.mockClear();
-    ctx = { global:{}, window: { retry: retryFn }, console: { log: consoleLog, warn: consoleWarn, error: consoleError } };
+    ctx = {
+      global: {},
+      window: { retry: retryFn },
+      document: { getElementsByTagName: () => [] },
+      console: { log: consoleLog, warn: consoleWarn, error: consoleError }
+    };
     vm.createContext(ctx);
   });
 
@@ -40,7 +51,8 @@ describe("with externals", () => {
     vm.runInContext(entryBundle, ctx);
     vm.runInContext(startup, ctx);
     expect(consoleWarn).toBeCalled();
-    var libraryWarnInfo = "", reTryNames = [];
+    var libraryWarnInfo = "",
+      reTryNames = [];
     consoleWarn.mock.calls.forEach(call => {
       libraryWarnInfo += call[0];
     });
@@ -55,4 +67,37 @@ describe("with externals", () => {
     expect(reTryNames).not.toEqual(expect.arrayContaining(["lodash"]));
   });
 
+  test.only("external's status should updated and don't trigger reload again after it reloaded done", () => {
+    return new Promise((resolve, reject) => {
+      let firstResolver;
+      let firstBundle, secondBundle;
+      let callTimes = 0;
+      let retry = jest.fn((bundleInfo, callback) => {
+        if (callTimes === 0) {
+          firstBundle = bundleInfo;
+          firstResolver = () => callback();
+        } else if (callTimes === 1) {
+          secondBundle = bundleInfo;
+          Promise.resolve()
+            .then(() => {
+              expect(firstBundle.isExternal).toBeTruthy();
+              const currentCallTime = retry.mock.calls.length;
+              expect(retry).toHaveBeenCalledTimes(currentCallTime);
+              expect(ctx.window.__WP_CHUNKS__[firstBundle.id]).toBe(1);
+              expect(ctx.window.__WP_CHUNKS__[secondBundle.id]).toBe(1);
+              ctx.window[firstBundle.name] = {};
+              firstResolver();
+              expect(retry).toHaveBeenCalledTimes(currentCallTime);
+              expect(ctx.window.__WP_CHUNKS__[firstBundle.id]).toBe(0);
+              expect(ctx.window.__WP_CHUNKS__[secondBundle.id]).toBe(1);
+              resolve();
+            })
+            .catch(reject);
+        }
+        callTimes++;
+      });
+      ctx.window.retry = retry;
+      vm.runInContext(startup, ctx, { filename: "main.startup.js" });
+    });
+  });
 });

@@ -50,7 +50,8 @@ module.exports = {
       // Provide urls for externals reload.
       externals: {
         jQuery: "https://code.jquery.com/jquery-3.2.1.min.js"
-      }
+      },
+      minify: false
     })
   ]
 };

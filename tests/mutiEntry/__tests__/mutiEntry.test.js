@@ -3,10 +3,22 @@ var fs = require("fs");
 var vm = require("vm");
 
 describe("mutiEntry with commonChunk", () => {
-  var index1Bundle = fs.readFileSync(path.resolve(__dirname, "../dist/index1.bundle.js"), "utf8");
-  var commonBundle = fs.readFileSync(path.resolve(__dirname, "../dist/common.bundle.js"), "utf8");
-  var index1Startup = fs.readFileSync(path.resolve(__dirname, "../dist/index1.startup.js"), "utf8");
-  var index2Startup = fs.readFileSync(path.resolve(__dirname, "../dist/index2.startup.js"), "utf8");
+  var index1Bundle = fs.readFileSync(
+    path.resolve(__dirname, "../dist/index1.bundle.js"),
+    "utf8"
+  );
+  var commonBundle = fs.readFileSync(
+    path.resolve(__dirname, "../dist/common.bundle.js"),
+    "utf8"
+  );
+  var index1Startup = fs.readFileSync(
+    path.resolve(__dirname, "../dist/index1.startup.js"),
+    "utf8"
+  );
+  var index2Startup = fs.readFileSync(
+    path.resolve(__dirname, "../dist/index2.startup.js"),
+    "utf8"
+  );
 
   var retryFn = jest.fn();
   var consoleLog = jest.fn();
@@ -17,7 +29,11 @@ describe("mutiEntry with commonChunk", () => {
     retryFn.mockClear();
     consoleLog.mockClear();
     consoleError.mockClear();
-    ctx = { window: { retry: retryFn }, console: { log: consoleLog, error: consoleError } };
+    ctx = {
+      window: { retry: retryFn },
+      document: { getElementsByTagName: () => [] },
+      console: { log: consoleLog, error: consoleError }
+    };
     vm.createContext(ctx);
   });
 
@@ -38,12 +54,9 @@ describe("mutiEntry with commonChunk", () => {
     retryFn.mockClear();
     vm.runInContext(index2Startup, ctx);
     expect(consoleError).toBeCalled();
-    expect(retryFn).toHaveBeenCalledTimes(2);
-    expect(retryFn.mock.calls[0][0].name).toBe("common");
-    expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
-    expect(retryFn.mock.calls[1][0].name).toBe("index2");
-    expect(retryFn.mock.calls[1][0].filename).toBe("index2.bundle.js");
-
+    expect(retryFn).toHaveBeenCalledTimes(1);
+    expect(retryFn.mock.calls[0][0].name).toBe("index2");
+    expect(retryFn.mock.calls[0][0].filename).toBe("index2.bundle.js");
   });
 
   test("commonChunk should run by startup code, not automatically", () => {
@@ -63,21 +76,44 @@ describe("mutiEntry with commonChunk", () => {
     expect(ctx.window.__WP_CHUNKS__).not.toBeDefined();
     expect(ctx.window.__WP_CHUNKS_CHECK__).not.toBeDefined();
     expect(() => {
-      vm.runInContext(index1Bundle, ctx, {filename: "index1.bundle.js"});
+      vm.runInContext(index1Bundle, ctx, { filename: "index1.bundle.js" });
     }).not.toThrow();
     expect(ctx.window.__WP_CHUNKS__).toBeDefined();
     expect(ctx.window.__WP_CHUNKS_CHECK__).toBeDefined();
 
-    vm.runInContext(index1Startup, ctx, {filename: "index1.startup.js"});
+    vm.runInContext(index1Startup, ctx, { filename: "index1.startup.js" });
     expect(consoleError).toBeCalled();
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
     expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
-    
+
     expect(() => {
-      vm.runInContext(commonBundle, ctx, {filename: "common.bundle.js"});
+      vm.runInContext(commonBundle, ctx, { filename: "common.bundle.js" });
     }).toThrow("I am index1!");
     expect(consoleLog).toBeCalled();
     expect(consoleLog.mock.calls[0][0]).toBe("I am commonLib!");
+  });
+
+  test("shouldn't retry again while retrying", () => {
+    vm.runInContext(index1Startup, ctx, { filename: "index1.startup.js" });
+    expect(consoleError).toBeCalled();
+    expect(retryFn).toHaveBeenCalledTimes(2);
+    vm.runInContext(
+      `
+      window.__WP_CHUNKS_CHECK__();
+      window.__WP_CHUNKS_CHECK__();
+    `,
+      ctx
+    );
+    expect(retryFn).toHaveBeenCalledTimes(2);
+    vm.runInContext(
+      `
+      Object.keys(window.__WP_CHUNKS__).forEach(id => delete window.__WP_CHUNKS__[id]);
+      window.__WP_CHUNKS_CHECK__();
+      window.__WP_CHUNKS_CHECK__();
+    `,
+      ctx
+    );
+    expect(retryFn).toHaveBeenCalledTimes(4);
   });
 });

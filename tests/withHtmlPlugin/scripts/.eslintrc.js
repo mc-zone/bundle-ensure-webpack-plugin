@@ -1,6 +1,5 @@
 module.exports = {
-  "globals": {
-    "phantom": true,
+  globals: {
+    phantom: true
   }
 };
-
