@@ -1,1 +1,1 @@
-console.log("I am commonLib!");
+window.test_output("I am commonLib!");

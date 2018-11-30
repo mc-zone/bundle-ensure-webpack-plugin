@@ -20,7 +20,7 @@ module.exports = {
       minSize: 0,
       cacheGroups: {
         common: {
-          name: "common",
+          name: "commonLib",
           test: /commonLib/,
           minSize: 0
         }
@@ -30,12 +30,12 @@ module.exports = {
   plugins: [
     new BundleEnsureWebpackPlugin({
       //for test
-      retryTemplate: "console.log(\"retry \" + bundleInfo.name);"
+      retryTemplate: "window.retry(bundleInfo, callback);"
     }),
 
     new HtmlWebpackPlugin({
       filename: "index1.html",
-      chunks: ["common", "index1"]
+      chunks: ["commonLib", "index1"]
     }),
 
     //for test
@@ -59,7 +59,7 @@ module.exports = {
     //for test
     new HtmlWebpackPlugin({
       filename: "index-muti.html",
-      chunks: ["common", "index1", "index2"]
+      chunks: ["commonLib", "index1", "index2"]
     }),
     //for test
     new HtmlWebpackPlugin({

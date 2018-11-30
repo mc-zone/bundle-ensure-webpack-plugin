@@ -1,11 +1,20 @@
 module.exports = {
+  env: {
+    jest: true
+  },
   globals: {
-    jest: true,
-    jasmine: true,
-    expect: true,
-    test: true,
-    describe: true,
-    beforeEach: true,
-    afterEach: true
+    jest: false,
+    jasmine: false,
+    expect: false,
+    test: false,
+    describe: false,
+    beforeEach: false,
+    afterEach: false,
+    page: false,
+    browser: false,
+    context: false,
+    jestPuppeteer: false,
+    document: false,
+    window: false
   }
 };

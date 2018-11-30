@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`mutiEntry with commonChunk muti entrypoint's manifest should separated 1`] = `
+Array [
+  Array [
+    Object {
+      "filename": "common.bundle.js",
+      "id": 0,
+      "isChunk": true,
+      "name": "common",
+      "retryTimes": 1,
+    },
+    [Function],
+  ],
+  Array [
+    Object {
+      "filename": "index1.bundle.js",
+      "id": 1,
+      "isChunk": true,
+      "name": "index1",
+      "retryTimes": 1,
+    },
+    [Function],
+  ],
+]
+`;

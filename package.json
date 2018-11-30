@@ -33,14 +33,16 @@
   "devDependencies": {
     "eslint": "^4.3.0",
     "html-webpack-plugin": "^3.2.0",
-    "jest": "^20.0.4",
-    "phantomjs-prebuilt": "^2.1.16",
+    "jest": "^23.6.0",
+    "jest-puppeteer": "^3.5.2",
     "prettier": "^1.14.2",
+    "puppeteer": "^1.10.0",
     "rimraf": "^2.6.2",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0"
   },
   "jest": {
-    "verbose": false
+    "verbose": false,
+    "preset": "jest-puppeteer"
   }
 }

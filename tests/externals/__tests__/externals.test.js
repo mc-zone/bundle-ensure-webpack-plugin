@@ -16,6 +16,7 @@ describe("with externals", () => {
   var consoleLog = jest.fn();
   var consoleWarn = jest.fn();
   var consoleError = jest.fn();
+  var testOutputFn = jest.fn();
   var ctx = null;
 
   beforeEach(() => {
@@ -23,9 +24,10 @@ describe("with externals", () => {
     consoleLog.mockClear();
     consoleWarn.mockClear();
     consoleError.mockClear();
+    testOutputFn.mockClear();
     ctx = {
       global: {},
-      window: { retry: retryFn },
+      window: { retry: retryFn, test_output: testOutputFn },
       document: { getElementsByTagName: () => [] },
       console: { log: consoleLog, warn: consoleWarn, error: consoleError }
     };
@@ -43,8 +45,10 @@ describe("with externals", () => {
 
     vm.runInContext(startup, ctx);
     expect(consoleError).toBeCalled();
-    expect(consoleLog).not.toBeCalled();
-    expect(retryFn).toBeCalled();
+    expect(testOutputFn).not.toBeCalled();
+    expect(retryFn).toHaveBeenCalledTimes(2);
+    expect(retryFn.mock.calls[0][0].name).toBe("commonLib");
+    expect(retryFn.mock.calls[1][0].name).toBe("jQuery");
   });
 
   test("should skip non-global externals (can't check)", () => {
@@ -67,7 +71,7 @@ describe("with externals", () => {
     expect(reTryNames).not.toEqual(expect.arrayContaining(["lodash"]));
   });
 
-  test.only("external's status should updated and don't trigger reload again after it reloaded done", () => {
+  test("external's status should updated and don't trigger reload again after it reloaded done", () => {
     return new Promise((resolve, reject) => {
       let firstResolver;
       let firstBundle, secondBundle;
@@ -99,5 +103,29 @@ describe("with externals", () => {
       ctx.window.retry = retry;
       vm.runInContext(startup, ctx, { filename: "main.startup.js" });
     });
+  });
+
+  test("should OK when externals completely", async () => {
+    const requireFn = jest.fn();
+    const page = await browser.newPage();
+    await page.exposeFunction("retry", retryFn);
+    await page.exposeFunction("require", requireFn);
+    await page.exposeFunction("test_output", testOutputFn);
+    await page.goto(
+      `file://${path.posix.join(__dirname, "../dist/index.html")}`
+    );
+    expect(retryFn).toHaveBeenCalledTimes(1);
+    expect(retryFn.mock.calls[0][0].name).toBe("jQuery");
+    expect(testOutputFn).not.toHaveBeenCalled();
+    await page.evaluate(() => {
+      window.jQuery = "jQuery";
+      window.__WP_CHUNKS_CHECK__();
+    });
+    expect(testOutputFn).toHaveBeenCalledTimes(2);
+    expect(testOutputFn.mock.calls[0][0]).toBe("I am index!");
+    expect(testOutputFn.mock.calls[1][0]).toBe("jQuery");
+    expect(testOutputFn.mock.calls[1][1]).toBe("lib1");
+    expect(testOutputFn.mock.calls[1][2]).toBe("lib2");
+    expect(requireFn.mock.calls[0][0]).toBe("lodash");
   });
 });

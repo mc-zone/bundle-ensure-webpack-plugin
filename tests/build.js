@@ -14,7 +14,8 @@ function webpackBuild(configPath, cb) {
       return;
     }
     if (stats.hasErrors()) {
-      return console.error(stats.toJson().errors);
+      stats.toJson().errors.forEach(console.error);
+      return;
     }
     console.log(
       stats.toString({

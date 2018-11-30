@@ -21,6 +21,7 @@ describe("mutiEntry with commonChunk", () => {
   );
 
   var retryFn = jest.fn();
+  var testOutputFn = jest.fn();
   var consoleLog = jest.fn();
   var consoleError = jest.fn();
   var ctx = null;
@@ -29,8 +30,9 @@ describe("mutiEntry with commonChunk", () => {
     retryFn.mockClear();
     consoleLog.mockClear();
     consoleError.mockClear();
+    testOutputFn.mockClear();
     ctx = {
-      window: { retry: retryFn },
+      window: { retry: retryFn, test_output: testOutputFn },
       document: { getElementsByTagName: () => [] },
       console: { log: consoleLog, error: consoleError }
     };
@@ -43,13 +45,19 @@ describe("mutiEntry with commonChunk", () => {
 
   test("muti entrypoint's manifest should separated", () => {
     vm.runInContext(index1Startup, ctx);
-    expect(consoleError).toBeCalled();
+    expect(consoleError).toHaveBeenCalledTimes(2);
+    expect(consoleError.mock.calls[0][0]).toEqual(
+      expect.stringMatching(/common.*missing/)
+    );
+    expect(consoleError.mock.calls[1][0]).toEqual(
+      expect.stringMatching(/index.*missing/)
+    );
     expect(retryFn).toHaveBeenCalledTimes(2);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
     expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
     expect(retryFn.mock.calls[1][0].name).toBe("index1");
     expect(retryFn.mock.calls[1][0].filename).toBe("index1.bundle.js");
-
+    expect(retryFn.mock.calls).toMatchSnapshot();
     consoleError.mockClear();
     retryFn.mockClear();
     vm.runInContext(index2Startup, ctx);
@@ -61,15 +69,23 @@ describe("mutiEntry with commonChunk", () => {
 
   test("commonChunk should run by startup code, not automatically", () => {
     vm.runInContext(commonBundle, ctx);
-    expect(consoleLog).not.toBeCalled();
+    expect(testOutputFn).not.toBeCalled();
     expect(ctx.window.__WP_CHUNKS__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx);
-    expect(consoleError).toBeCalled();
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError.mock.calls[0][0]).toEqual(
+      expect.stringMatching(/index1.*missing/)
+    );
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("index1");
     expect(retryFn.mock.calls[0][0].filename).toBe("index1.bundle.js");
-    expect(consoleLog).not.toBeCalled();
+    expect(testOutputFn).not.toBeCalled();
+    expect(() => {
+      vm.runInContext(index1Bundle, ctx, { filename: "index1.bundle.js" });
+    }).toThrow("I am index1!");
+    expect(testOutputFn).toBeCalled();
+    expect(testOutputFn.mock.calls[0][0]).toBe("I am commonLib!");
   });
 
   test("entry should run by startup code, not automatically", () => {
@@ -82,7 +98,11 @@ describe("mutiEntry with commonChunk", () => {
     expect(ctx.window.__WP_CHUNKS_CHECK__).toBeDefined();
 
     vm.runInContext(index1Startup, ctx, { filename: "index1.startup.js" });
-    expect(consoleError).toBeCalled();
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError.mock.calls[0][0]).toEqual(
+      expect.stringMatching(/common.*missing/)
+    );
+
     expect(retryFn).toHaveBeenCalledTimes(1);
     expect(retryFn.mock.calls[0][0].name).toBe("common");
     expect(retryFn.mock.calls[0][0].filename).toBe("common.bundle.js");
@@ -90,13 +110,13 @@ describe("mutiEntry with commonChunk", () => {
     expect(() => {
       vm.runInContext(commonBundle, ctx, { filename: "common.bundle.js" });
     }).toThrow("I am index1!");
-    expect(consoleLog).toBeCalled();
-    expect(consoleLog.mock.calls[0][0]).toBe("I am commonLib!");
+    expect(testOutputFn).toHaveBeenCalledTimes(1);
+    expect(testOutputFn.mock.calls[0][0]).toBe("I am commonLib!");
   });
 
   test("shouldn't retry again while retrying", () => {
     vm.runInContext(index1Startup, ctx, { filename: "index1.startup.js" });
-    expect(consoleError).toBeCalled();
+    expect(consoleError).toHaveBeenCalledTimes(2);
     expect(retryFn).toHaveBeenCalledTimes(2);
     vm.runInContext(
       `

@@ -1,2 +1,2 @@
 require("./commonLib");
-console.log("I am index1!");
+window.test_output("I am index1!");

@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`singleEntry should trigger retry func again when one reload failed, until out of limit 1`] = `
+Object {
+  "0": 2,
+}
+`;

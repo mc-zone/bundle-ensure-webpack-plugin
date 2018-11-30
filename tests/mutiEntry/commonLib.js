@@ -1,1 +1,3 @@
-console.log("I am commonLib!");
+/* eslint-disable */
+window.test_output("I am commonLib!");
+/* eslint-enable */

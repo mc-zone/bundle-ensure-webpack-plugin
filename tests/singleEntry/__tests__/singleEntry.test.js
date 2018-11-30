@@ -13,17 +13,19 @@ describe("singleEntry", () => {
   );
 
   var retryFn = jest.fn();
+  var consoleLog = jest.fn();
   var consoleError = jest.fn();
   var consoleWarn = jest.fn();
   var ctx;
   beforeEach(() => {
     retryFn.mockClear();
+    consoleLog.mockClear();
     consoleError.mockClear();
     consoleWarn.mockClear();
     ctx = {
       window: { retry: retryFn },
       document: { getElementsByTagName: () => [] },
-      console: { error: consoleError, warn: consoleWarn }
+      console: { log: consoleLog, error: consoleError, warn: consoleWarn }
     };
     vm.createContext(ctx);
   });
@@ -103,6 +105,6 @@ describe("singleEntry", () => {
 
     retryFn.mock.calls[2][1]();
     expect(retryFn).toHaveBeenCalledTimes(3);
-    expect(ctx.window.__WP_CHUNKS__).toBe(null);
+    expect(ctx.window.__WP_CHUNKS__).toMatchSnapshot();
   });
 });
