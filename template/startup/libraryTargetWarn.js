@@ -1,5 +1,5 @@
 log.warn(
-  "Unable to check installed for external: " +
+  "[Bundle Ensure Plugin] Unable to check installed for external: " +
     item.name +
     " (which using \"" +
     item.libraryTarget +

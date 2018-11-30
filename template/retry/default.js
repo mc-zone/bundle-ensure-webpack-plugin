@@ -1,22 +1,33 @@
-var log = typeof console !== "undefined" ? console : {};
 var externalUrls = __EXTERNALS__;
 var publicPath = __PUBLIC_PATH__;
 var bundleInfo = __BUNDLE_INFO__;
+
+var emptyFn = function() {};
+var log =
+  typeof console !== "undefined" ? console : { log: emptyFn, warn: emptyFn };
+
 var url;
 if (bundleInfo.isChunk) {
   url = publicPath + bundleInfo.filename;
 } else if (bundleInfo.isExternal && externalUrls) {
   url = externalUrls[bundleInfo.name];
 }
-if (url) {
+
+if (!url) {
+  log.warn("[Bundle Ensure Plugin] reload url not found: " + bundleInfo.name);
+  __GIVEUP__();
+} else {
   if (__APPEND_TIMESTAMP__) {
     url = (url + "&time=" + new Date().valueOf()).replace(/\?|&/, "?");
   }
   log.log(
-    "reloading: " +
+    "[Bundle Ensure Plugin] reloading " +
       bundleInfo.name +
-      " " +
-      url + " (" +
+      "(" +
+      bundleInfo.id +
+      "):" +
+      url +
+      " (" +
       bundleInfo.retryTimes +
       "th)"
   );
@@ -30,9 +41,15 @@ if (url) {
     finished = true;
     clearTimeout(timer);
     if (error) {
-      log.log("reload failed: " + bundleInfo.name + " (" + error.type + ")");
+      log.warn(
+        "[Bundle Ensure Plugin] reload failed: " +
+          bundleInfo.name +
+          " (" +
+          error.type +
+          ")"
+      );
     } else {
-      log.log("reload done: " + bundleInfo.name);
+      log.log("[Bundle Ensure Plugin] reload done: " + bundleInfo.name);
     }
     __CALLBACK__();
   };
