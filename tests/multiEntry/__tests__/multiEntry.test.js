@@ -2,7 +2,7 @@ var path = require("path");
 var fs = require("fs");
 var vm = require("vm");
 
-describe("mutiEntry with commonChunk", () => {
+describe("multiple entry with commonChunk", () => {
   var index1Bundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/index1.bundle.js"),
     "utf8"
@@ -43,7 +43,7 @@ describe("mutiEntry with commonChunk", () => {
     ctx = null;
   });
 
-  test("muti entrypoint's manifest should separated", () => {
+  test("multiple entrypoint's manifest should separated", () => {
     vm.runInContext(index1Startup, ctx);
     expect(consoleError).toHaveBeenCalledTimes(2);
     expect(consoleError.mock.calls[0][0]).toEqual(

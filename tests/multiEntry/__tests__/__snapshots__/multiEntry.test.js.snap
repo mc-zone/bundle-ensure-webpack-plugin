@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`mutiEntry with commonChunk muti entrypoint's manifest should separated 1`] = `
+exports[`multiple entry with commonChunk multiple entrypoint's manifest should separated 1`] = `
 Array [
   Array [
     Object {
