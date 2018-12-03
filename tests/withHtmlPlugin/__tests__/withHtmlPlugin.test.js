@@ -1,4 +1,4 @@
-var path = require("path");
+const path = require("path");
 
 describe("with htmlPlugin", () => {
   const testOutputFn = jest.fn();

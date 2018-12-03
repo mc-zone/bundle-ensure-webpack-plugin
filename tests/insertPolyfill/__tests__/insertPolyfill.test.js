@@ -1,19 +1,19 @@
-var path = require("path");
-var fs = require("fs");
-var vm = require("vm");
+const path = require("path");
+const fs = require("fs");
+const vm = require("vm");
 
 describe("insertPolyfill", () => {
-  var bundle = fs.readFileSync(
+  const bundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.bundle.js"),
     "utf8"
   );
-  var startupScript = fs.readFileSync(
+  const startupScript = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.startup.js"),
     "utf8"
   );
 
-  var testOutputFn = jest.fn();
-  var ctx;
+  const testOutputFn = jest.fn();
+  let ctx;
   beforeEach(() => {
     testOutputFn.mockClear();
     ctx = {

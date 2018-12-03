@@ -1,5 +1,5 @@
-var path = require("path");
-var BundleEnsureWebpackPlugin = require("../../");
+const path = require("path");
+const BundleEnsureWebpackPlugin = require("../../");
 
 module.exports = {
   entry: path.resolve(__dirname, "./index.js"),

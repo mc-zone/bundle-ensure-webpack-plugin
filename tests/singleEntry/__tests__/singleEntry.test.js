@@ -1,22 +1,22 @@
-var path = require("path");
-var fs = require("fs");
-var vm = require("vm");
+const path = require("path");
+const fs = require("fs");
+const vm = require("vm");
 
 describe("singleEntry", () => {
-  var bundle = fs.readFileSync(
+  const bundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.bundle.js"),
     "utf8"
   );
-  var startupScript = fs.readFileSync(
+  const startupScript = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.startup.js"),
     "utf8"
   );
 
-  var retryFn = jest.fn();
-  var consoleLog = jest.fn();
-  var consoleError = jest.fn();
-  var consoleWarn = jest.fn();
-  var ctx;
+  const retryFn = jest.fn();
+  const consoleLog = jest.fn();
+  const consoleError = jest.fn();
+  const consoleWarn = jest.fn();
+  let ctx;
   beforeEach(() => {
     retryFn.mockClear();
     consoleLog.mockClear();
@@ -79,8 +79,8 @@ describe("singleEntry", () => {
   test("shouldn't trigger retry func after call giveup", () => {
     vm.runInContext(startupScript, ctx, { filename: "main.startup.js" });
     expect(retryFn).toHaveBeenCalledTimes(1);
-    var bundleInfo = retryFn.mock.calls[0][0];
-    var giveupFn = retryFn.mock.calls[0][3];
+    const bundleInfo = retryFn.mock.calls[0][0];
+    const giveupFn = retryFn.mock.calls[0][3];
     expect(ctx.window.__WP_CHUNKS__[bundleInfo.id]).toBe(1);
 
     giveupFn();

@@ -1,5 +1,5 @@
-var $ = require("jQuery");
-var lib = require("./lib");
+const $ = require("jQuery");
+const lib = require("./lib");
 
 console.log("entry1");
 console.log(lib);

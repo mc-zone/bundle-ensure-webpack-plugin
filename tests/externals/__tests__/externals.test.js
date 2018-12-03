@@ -1,23 +1,23 @@
-var path = require("path");
-var fs = require("fs");
-var vm = require("vm");
+const path = require("path");
+const fs = require("fs");
+const vm = require("vm");
 
 describe("with externals", () => {
-  var entryBundle = fs.readFileSync(
+  const entryBundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.bundle.js"),
     "utf8"
   );
-  var startup = fs.readFileSync(
+  const startup = fs.readFileSync(
     path.resolve(__dirname, "../dist/main.startup.js"),
     "utf8"
   );
 
-  var retryFn = jest.fn();
-  var consoleLog = jest.fn();
-  var consoleWarn = jest.fn();
-  var consoleError = jest.fn();
-  var testOutputFn = jest.fn();
-  var ctx = null;
+  const retryFn = jest.fn();
+  const consoleLog = jest.fn();
+  const consoleWarn = jest.fn();
+  const consoleError = jest.fn();
+  const testOutputFn = jest.fn();
+  let ctx = null;
 
   beforeEach(() => {
     retryFn.mockClear();
@@ -55,8 +55,8 @@ describe("with externals", () => {
     vm.runInContext(entryBundle, ctx);
     vm.runInContext(startup, ctx);
     expect(consoleWarn).toBeCalled();
-    var libraryWarnInfo = "",
-      reTryNames = [];
+    let libraryWarnInfo = "";
+    const reTryNames = [];
     consoleWarn.mock.calls.forEach(call => {
       libraryWarnInfo += call[0];
     });

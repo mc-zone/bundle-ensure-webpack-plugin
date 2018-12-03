@@ -1,30 +1,30 @@
-var path = require("path");
-var fs = require("fs");
-var vm = require("vm");
+const path = require("path");
+const fs = require("fs");
+const vm = require("vm");
 
 describe("multiple entry with commonChunk", () => {
-  var index1Bundle = fs.readFileSync(
+  const index1Bundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/index1.bundle.js"),
     "utf8"
   );
-  var commonBundle = fs.readFileSync(
+  const commonBundle = fs.readFileSync(
     path.resolve(__dirname, "../dist/common.bundle.js"),
     "utf8"
   );
-  var index1Startup = fs.readFileSync(
+  const index1Startup = fs.readFileSync(
     path.resolve(__dirname, "../dist/index1.startup.js"),
     "utf8"
   );
-  var index2Startup = fs.readFileSync(
+  const index2Startup = fs.readFileSync(
     path.resolve(__dirname, "../dist/index2.startup.js"),
     "utf8"
   );
 
-  var retryFn = jest.fn();
-  var testOutputFn = jest.fn();
-  var consoleLog = jest.fn();
-  var consoleError = jest.fn();
-  var ctx = null;
+  const retryFn = jest.fn();
+  const testOutputFn = jest.fn();
+  const consoleLog = jest.fn();
+  const consoleError = jest.fn();
+  let ctx = null;
 
   beforeEach(() => {
     retryFn.mockClear();

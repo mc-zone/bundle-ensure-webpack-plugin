@@ -1,7 +1,7 @@
-var fs = require("fs");
-var path = require("path");
-var webpack = require("webpack");
-var rimraf = require("rimraf");
+const fs = require("fs");
+const path = require("path");
+const webpack = require("webpack");
+const rimraf = require("rimraf");
 const only = process.argv[2];
 
 function webpackBuild(configPath, cb) {
@@ -30,7 +30,7 @@ function webpackBuild(configPath, cb) {
 
 fs.readdir(__dirname, function(err, list) {
   if (err) throw err;
-  var dirs = list
+  const dirs = list
     .filter(name => !/\./.test(name))
     .filter(name => !only || name.indexOf(only) !== -1);
 
@@ -39,8 +39,8 @@ fs.readdir(__dirname, function(err, list) {
       if (err) {
         return console.error(err);
       }
-      var buildConfig = path.resolve(__dirname, dir, "webpack.config.js");
-      var prebuildConfig = path.resolve(
+      const buildConfig = path.resolve(__dirname, dir, "webpack.config.js");
+      const prebuildConfig = path.resolve(
         __dirname,
         dir,
         "webpack.prebuild.config.js"

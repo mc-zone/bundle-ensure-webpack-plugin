@@ -1,7 +1,7 @@
-var path = require("path");
-var webpack = require("webpack");
-var BundleEnsureWebpackPlugin = require("../../");
-var HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require("path");
+const webpack = require("webpack");
+const BundleEnsureWebpackPlugin = require("../../");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: path.resolve(__dirname, "./index.js"),

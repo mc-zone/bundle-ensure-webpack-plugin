@@ -2,6 +2,7 @@ module.exports = {
   env: {
     jest: true
   },
+  extends: ["plugin:node/recommended"],
   globals: {
     jest: false,
     jasmine: false,
@@ -16,5 +17,14 @@ module.exports = {
     jestPuppeteer: false,
     document: false,
     window: false
+  },
+  rules: {
+    "no-undef": "error",
+    "no-var": "error",
+    "node/no-unpublished-require": 0,
+    "node/no-missing-require": 0,
+    "node/no-extraneous-require": 0,
+    "node/no-unsupported-features": "error",
+    "node/no-deprecated-api": "error"
   }
 };
